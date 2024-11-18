@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restoct-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: restoct
+  template:
+    metadata:
+      labels:
+        app: restoct
+    spec:
+      containers:
+        - name: restoct-app
+          image: restoct-app:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8089
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres:5432/restoct"
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: POSTGRES_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: restoct-service
+spec:
+  ports:
+    - port: 8089
+      targetPort: 8089
+  selector:
+    app: restoct
+  type: LoadBalancer

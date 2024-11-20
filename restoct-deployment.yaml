@@ -11,6 +11,10 @@ spec:
     metadata:
       labels:
         app: restoct
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8089"
     spec:
       containers:
         - name: restoct-app
@@ -31,6 +35,10 @@ spec:
                 configMapKeyRef:
                   name: postgres-config
                   key: POSTGRES_PASSWORD
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "prometheus,health,info,metrics"
+            - name: MANAGEMENT_METRICS_TAGS_APPLICATION
+              value: "restoct"
 ---
 apiVersion: v1
 kind: Service
